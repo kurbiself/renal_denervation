@@ -87,7 +87,7 @@ class PatientDeseaseViewSet(viewsets.ModelViewSet):
 
 class TypeCheckPointViewSet(viewsets.ModelViewSet):
     serializer_class = TypeCheckPointSerializer
-
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
     def get_queryset(self):
         type_checkpoints = TypeCheckPoint.objects.all()
         name_filter = self.request.query_params.get("name")

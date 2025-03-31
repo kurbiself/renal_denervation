@@ -6,47 +6,47 @@ class HospitalSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Hospital
-        fields = ("fullname", "shortname", "city", "note")
+        fields = ("id","fullname", "shortname", "city", "note")
 
 
 class UnitlSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Unit
-        fields = ("fullname", "shortname")
+        fields = ("id","fullname", "shortname")
 
 
 class PharmacologicalGrouplSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PharmacologicalGroup
-        fields = ("name",)
+        fields = ("id","name",)
 
 
 class ActiveIngredientlSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ActiveIngredient
-        fields = ("name", "pharmacological_group")
+        fields = ("id","name", "pharmacological_group")
 
 
 class MedicineSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Medicine
-        fields = ("trade_name", "international_name", "active_ingredient")
+        fields = ("id","trade_name", "international_name", "active_ingredient")
 
 class CatheterTypeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CatheterType
-        fields = ("fullname", "shortname", "note")
+        fields = ("id","fullname", "shortname", "note")
 
 class DiseaseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Disease
-        fields = ("fullname", "shortname", "code_ICD_10", "note")
+        fields = ("id","fullname", "shortname", "code_ICD_10", "note")
 
 
 # -------------------------
@@ -56,7 +56,7 @@ class AblationSiteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AblationSite
-        fields = ("surgical_operation", "name", "note")
+        fields = ("id","surgical_operation", "name", "note")
 
 
 class SurgicalOperationSerializer(serializers.ModelSerializer):
@@ -66,6 +66,7 @@ class SurgicalOperationSerializer(serializers.ModelSerializer):
     class Meta:
         model = SurgicalOperation
         fields = (
+            "id",
             "check_point_id",
             "catheter",
             "name",
@@ -83,6 +84,7 @@ class TreatmentDrugSerializer(serializers.ModelSerializer):
     class Meta:
         model = TreatmentDrug
         fields = (
+            "id",
             "check_point_id",
             "medicine",
             "note",
@@ -99,6 +101,7 @@ class TypeCheckPointSerializer(serializers.ModelSerializer):
     class Meta:
         model = TypeCheckPoint
         fields = (
+            "id",
             "name",
             "note",
         )
@@ -107,13 +110,14 @@ class TypeCheckPointSerializer(serializers.ModelSerializer):
 class CheckPointSerializer(serializers.ModelSerializer):
     operations = SurgicalOperationSerializer(many=True, read_only=True)
     treatments_drugs = TreatmentDrugSerializer(many=True, read_only=True)
-    type_point = serializers.CharField()
-
+    type_point_name = serializers.SerializerMethodField()
     class Meta:
         model = CheckPoint
         fields = (
+            "id",
             "patient",
             "type_point",
+            "type_point_name",
             "date_of_receipt",
             "date_of_discharge",
             "hospital_id",
@@ -121,6 +125,9 @@ class CheckPointSerializer(serializers.ModelSerializer):
             "treatments_drugs",
             "note",
         )
+    
+    def get_type_point_name(self, obj):
+        return obj.type_point.name
 
 
 class PatientDeseaseSerializer(serializers.ModelSerializer):
@@ -130,6 +137,7 @@ class PatientDeseaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = PatientDesease
         fields = (
+            "id",
             "patient_id",
             "disease_id",
             "year_start_disease",
@@ -144,7 +152,7 @@ class PatientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Patient
-        fields = ("code", "gender", "birth", "points", "patient_diseases", "note")
+        fields = ("id","code", "gender", "birth", "points", "patient_diseases", "note")
 
 
 class MetricSerializer(serializers.ModelSerializer):
@@ -154,6 +162,7 @@ class MetricSerializer(serializers.ModelSerializer):
     class Meta:
         model = Metric
         fields = (
+            "id",
             "measurement_type",
             "fullname",
             "shortname",
@@ -170,7 +179,7 @@ class VariantQualitativeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = VariantQualitative
-        fields = ("metric_id", "value", "reference", "note")
+        fields = ("id","metric_id", "value", "reference", "note")
 
 
 class MetricsTemplatesSerializer(serializers.ModelSerializer):
@@ -179,7 +188,7 @@ class MetricsTemplatesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MetricsTemplates
-        fields = ("research_template_id", "metric_id", "note")
+        fields = ("id","research_template_id", "metric_id", "note")
 
 
 class ResearchTemplateSerializer(serializers.ModelSerializer):
@@ -187,7 +196,7 @@ class ResearchTemplateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ResearchTemplate
-        fields = ("name", "type_research", "metrics_templates", "note")
+        fields = ("id","name", "type_research", "metrics_templates", "note")
 
 
 class MetricValueSerializer(serializers.ModelSerializer):
@@ -197,6 +206,7 @@ class MetricValueSerializer(serializers.ModelSerializer):
     class Meta:
         model = MetricValue
         fields = (
+            "id",
             "research_id",
             "metric_id",
             "value_qualitative_id",
@@ -215,6 +225,7 @@ class ResearchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Research
         fields = (
+            "id",
             "research_template_id",
             "check_point_id",
             "date",
