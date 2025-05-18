@@ -54,7 +54,7 @@ router.register(
     prefix="metrics-values", viewset=MetricValueViewSet, basename="metricsvalues"
 )
 router.register(
-    prefix="patient-deseases", viewset=PatientDeseaseViewSet, basename="patientdeseases"
+    prefix="patient-diseases", viewset=PatientDeseaseViewSet, basename="patientdiseases"
 )
 router.register(
     prefix="type-checkpoints", viewset=TypeCheckPointViewSet, basename="typecheckpoints"

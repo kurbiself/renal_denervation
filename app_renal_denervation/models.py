@@ -87,7 +87,10 @@ class ActiveIngredient(models.Model):
 
 class Medicine(models.Model):
     active_ingredient = models.ForeignKey(
-        ActiveIngredient, verbose_name="Активное вещество", on_delete=models.CASCADE
+        ActiveIngredient,
+        related_name="medicines",
+        verbose_name="Активное вещество",
+        on_delete=models.CASCADE,
     )
     trade_name = models.CharField(
         max_length=256, unique=True, verbose_name="Торговое наименование"
@@ -127,9 +130,14 @@ class CatheterType(models.Model):  # ?
 class Disease(models.Model):
     fullname = models.CharField(max_length=256, verbose_name="Название заболевания")
     shortname = models.CharField(
-        max_length=256, verbose_name="Краткое название заболевания", null=True, blank=True
+        max_length=256,
+        verbose_name="Краткое название заболевания",
+        null=True,
+        blank=True,
     )
-    code_ICD_10 = models.CharField(max_length=16, verbose_name="Код МКБ 10", null=True, blank=True)
+    code_ICD_10 = models.CharField(
+        max_length=16, verbose_name="Код МКБ 10", null=True, blank=True
+    )
     note = models.CharField(
         max_length=1024, verbose_name="Примечание", blank=True, null=True
     )
@@ -180,7 +188,7 @@ class PatientDesease(models.Model):
     note = models.CharField(
         max_length=1024, verbose_name="Примечание", blank=True, null=True
     )
-    ClassificationDisease = Choices("Основное", "Сопуствующее")
+    ClassificationDisease = Choices("Основное", "Сопутствующее")
     classification_disease = models.CharField(
         choices=ClassificationDisease, verbose_name="Тип значимости заболевания"
     )
@@ -221,9 +229,7 @@ class CheckPoint(models.Model):
     type_point = models.ForeignKey(
         TypeCheckPoint,
         related_name="points",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
+        on_delete=models.CASCADE,
         verbose_name="Тип контрольной точки",
     )
 
@@ -238,7 +244,7 @@ class CheckPoint(models.Model):
     )
 
     def __str__(self):
-        return f"{self.patient} - {self.type_point}"
+        return f"{self.type_point}"
 
     class Meta:
         verbose_name = "Контрольная точка"
@@ -340,7 +346,10 @@ class Metric(models.Model):
     )
     fullname = models.CharField(max_length=256, verbose_name="Название показателя")
     shortname = models.CharField(
-        max_length=256, verbose_name="Краткое название показателя", null=True
+        max_length=256,
+        verbose_name="Краткое название показателя",
+        null=True,
+        blank=True,
     )
     reference_max_numerical = models.IntegerField(
         verbose_name="Референсное значение по верхней границе количественного признака",
@@ -433,7 +442,10 @@ class MetricsTemplates(models.Model):
         verbose_name="Шаблон исследования",
     )
     metric_id = models.ForeignKey(
-        Metric, on_delete=models.CASCADE, verbose_name="Показатель"
+        Metric,
+        on_delete=models.CASCADE,
+        verbose_name="Показатель",
+        related_name="metrics_templates",
     )
     note = models.CharField(
         max_length=1024, verbose_name="Примечание", blank=True, null=True

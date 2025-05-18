@@ -6,47 +6,73 @@ class HospitalSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Hospital
-        fields = ("id","fullname", "shortname", "city", "note")
+        fields = ("id", "fullname", "shortname", "city", "note")
 
 
 class UnitlSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Unit
-        fields = ("id","fullname", "shortname")
+        fields = ("id", "fullname", "shortname")
 
 
 class PharmacologicalGrouplSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PharmacologicalGroup
-        fields = ("id","name",)
+        fields = (
+            "id",
+            "name",
+        )
 
 
 class ActiveIngredientlSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ActiveIngredient
-        fields = ("id","name", "pharmacological_group")
+        fields = ("id", "name", "pharmacological_group")
 
 
 class MedicineSerializer(serializers.ModelSerializer):
 
+    active_ingredient_name = serializers.SerializerMethodField()
+    pharmacological_group_name = serializers.SerializerMethodField()
+    pharmacological_group_id = serializers.SerializerMethodField()
+
     class Meta:
         model = Medicine
-        fields = ("id","trade_name", "international_name", "active_ingredient")
+        fields = (
+            "id",
+            "trade_name",
+            "international_name",
+            "active_ingredient",
+            "active_ingredient_name",
+            "pharmacological_group_id",
+            "pharmacological_group_name",
+        )
+
+    def get_active_ingredient_name(self, obj):
+        return obj.active_ingredient.name
+
+    def get_pharmacological_group_name(self, obj):
+        return obj.active_ingredient.pharmacological_group.name
+
+    def get_pharmacological_group_id(self, obj):
+        return obj.active_ingredient.pharmacological_group.id
+
 
 class CatheterTypeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CatheterType
-        fields = ("id","fullname", "shortname", "note")
+        fields = ("id", "fullname", "shortname", "note")
+
 
 class DiseaseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Disease
-        fields = ("id","fullname", "shortname", "code_ICD_10", "note")
+        fields = ("id", "fullname", "shortname", "code_ICD_10", "note")
 
 
 # -------------------------
@@ -56,7 +82,7 @@ class AblationSiteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AblationSite
-        fields = ("id","surgical_operation", "name", "note")
+        fields = ("id", "surgical_operation", "name", "note")
 
 
 class SurgicalOperationSerializer(serializers.ModelSerializer):
@@ -80,6 +106,7 @@ class SurgicalOperationSerializer(serializers.ModelSerializer):
 
 class TreatmentDrugSerializer(serializers.ModelSerializer):
     type_stage = serializers.CharField()
+    medicine_name = serializers.SerializerMethodField()
 
     class Meta:
         model = TreatmentDrug
@@ -87,6 +114,7 @@ class TreatmentDrugSerializer(serializers.ModelSerializer):
             "id",
             "check_point_id",
             "medicine",
+            "medicine_name",
             "note",
             "dose",
             "type_stage",
@@ -95,6 +123,8 @@ class TreatmentDrugSerializer(serializers.ModelSerializer):
             "taking_medicine_evening",
             "taking_medicine_night",
         )
+    def get_medicine_name(self, obj):
+        return obj.medicine.international_name
 
 
 class TypeCheckPointSerializer(serializers.ModelSerializer):
@@ -111,6 +141,7 @@ class CheckPointSerializer(serializers.ModelSerializer):
     operations = SurgicalOperationSerializer(many=True, read_only=True)
     treatments_drugs = TreatmentDrugSerializer(many=True, read_only=True)
     type_point_name = serializers.SerializerMethodField()
+
     class Meta:
         model = CheckPoint
         fields = (
@@ -125,14 +156,14 @@ class CheckPointSerializer(serializers.ModelSerializer):
             "treatments_drugs",
             "note",
         )
-    
+
     def get_type_point_name(self, obj):
         return obj.type_point.name
 
 
 class PatientDeseaseSerializer(serializers.ModelSerializer):
-    patient_id = serializers.CharField()
-    disease_id = serializers.CharField()
+    disease_id_fullname = serializers.SerializerMethodField()
+    disease_id_shortname = serializers.SerializerMethodField()
 
     class Meta:
         model = PatientDesease
@@ -140,10 +171,18 @@ class PatientDeseaseSerializer(serializers.ModelSerializer):
             "id",
             "patient_id",
             "disease_id",
+            "disease_id_fullname",
+            "disease_id_shortname",
             "year_start_disease",
             "note",
             "classification_disease",
         )
+
+    def get_disease_id_fullname(self, obj):
+        return obj.disease_id.fullname
+
+    def get_disease_id_shortname(self, obj):
+        return obj.disease_id.shortname
 
 
 class PatientSerializer(serializers.ModelSerializer):
@@ -152,12 +191,19 @@ class PatientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Patient
-        fields = ("id","code", "gender", "birth", "points", "patient_diseases", "note")
+        fields = ("id", "code", "gender", "birth", "points", "patient_diseases", "note")
+
+
+class VariantQualitativeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VariantQualitative
+        fields = ("id", "metric_id", "value", "reference", "note")
 
 
 class MetricSerializer(serializers.ModelSerializer):
     measurement_type = serializers.CharField()
-    unit_for_metric = serializers.CharField()
+    unit_for_metric_shortname = serializers.SerializerMethodField()
+    variants_qualitative = VariantQualitativeSerializer(many=True, read_only=True)
 
     class Meta:
         model = Metric
@@ -170,25 +216,24 @@ class MetricSerializer(serializers.ModelSerializer):
             "reference_min_numerical",
             "reference_binary",
             "unit_for_metric",
+            "unit_for_metric_shortname",
+            "variants_qualitative",
             "note",
         )
 
-
-class VariantQualitativeSerializer(serializers.ModelSerializer):
-    metric_id = serializers.CharField()
-
-    class Meta:
-        model = VariantQualitative
-        fields = ("id","metric_id", "value", "reference", "note")
+    def get_unit_for_metric_shortname(self, obj):
+        return str(obj.unit_for_metric)
 
 
 class MetricsTemplatesSerializer(serializers.ModelSerializer):
-    research_template_id = serializers.CharField()
-    metric_id = serializers.CharField()
+    metric_data = serializers.SerializerMethodField()
 
     class Meta:
         model = MetricsTemplates
-        fields = ("id","research_template_id", "metric_id", "note")
+        fields = ("id", "research_template_id", "metric_id", "metric_data", "note")
+
+    def get_metric_data(self, obj):
+        return MetricSerializer(obj.metric_id).data
 
 
 class ResearchTemplateSerializer(serializers.ModelSerializer):
@@ -196,12 +241,18 @@ class ResearchTemplateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ResearchTemplate
-        fields = ("id","name", "type_research", "metrics_templates", "note")
+        fields = (
+            "id",
+            "name",
+            "type_research",
+            "metrics_templates",
+            "obligation_of_research",
+            "note",
+        )
 
 
 class MetricValueSerializer(serializers.ModelSerializer):
-    research_id = serializers.CharField()
-    metric_id = serializers.CharField()
+    metric_id_data = serializers.SerializerMethodField()
 
     class Meta:
         model = MetricValue
@@ -213,22 +264,35 @@ class MetricValueSerializer(serializers.ModelSerializer):
             "value_numerical",
             "value_binary",
             "value_descriptive",
+            "metric_id_data",
             "note",
         )
 
+    def get_metric_id_data(self, obj):
+        return MetricSerializer(obj.metric_id).data
+
 
 class ResearchSerializer(serializers.ModelSerializer):
-    research_template_id = serializers.CharField()
-    check_point_id = serializers.CharField()
+    research_template_name = serializers.SerializerMethodField()
+    check_point_name = serializers.SerializerMethodField()
     metrics_values = MetricValueSerializer(many=True, read_only=True)
 
+    
     class Meta:
         model = Research
         fields = (
             "id",
             "research_template_id",
+            "research_template_name",
             "check_point_id",
+            "check_point_name",
             "date",
             "metrics_values",
             "note",
         )
+
+    def get_research_template_name(self, obj):
+        return obj.research_template_id.name
+
+    def get_check_point_name(self, obj):
+        return str(obj.check_point_id)

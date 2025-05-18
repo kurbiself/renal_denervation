@@ -74,20 +74,21 @@ class PatientDeseaseViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         patient_desease = PatientDesease.objects.all()
-        patient_filter = self.request.query_params.get("patient_id")
-        disease_filter = self.request.query_params.get("disease_name")
-        if patient_filter:
-            patient_desease = patient_desease.filter(patient_id=patient_filter)
-        if disease_filter:
-            patient_desease = patient_desease.filter(
-                disease_id__fullname__istartswith=disease_filter
-            )
+        # patient_filter = self.request.query_params.get("patient_id")
+        # disease_filter = self.request.query_params.get("disease_name")
+        # if patient_filter:
+        #     patient_desease = patient_desease.filter(patient_id=patient_filter)
+        # if disease_filter:
+        #     patient_desease = patient_desease.filter(
+        #         disease_id__fullname__istartswith=disease_filter
+        #     )
         return patient_desease
 
 
 class TypeCheckPointViewSet(viewsets.ModelViewSet):
     serializer_class = TypeCheckPointSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+
     def get_queryset(self):
         type_checkpoints = TypeCheckPoint.objects.all()
         name_filter = self.request.query_params.get("name")
@@ -128,14 +129,23 @@ class CheckPointViewSet(viewsets.ModelViewSet):
 
 class SurgicalOperationViewSet(viewsets.ModelViewSet):
     serializer_class = SurgicalOperationSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
         surgical_operations = SurgicalOperation.objects.all()
+
+        check_point_id_filter = self.request.query_params.get("check_point_id")
+        if check_point_id_filter:
+            surgical_operations = surgical_operations.filter(
+                check_point_id=check_point_id_filter
+            )
+
         return surgical_operations
 
 
 class AblationSiteViewSet(viewsets.ModelViewSet):
     serializer_class = AblationSiteSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
         ablation_sites = AblationSite.objects.all()
@@ -144,22 +154,21 @@ class AblationSiteViewSet(viewsets.ModelViewSet):
 
 class TreatmentDrugViewSet(viewsets.ModelViewSet):
     serializer_class = TreatmentDrugSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
         treatments_drug = TreatmentDrug.objects.all()
+        check_point_id_filter = self.request.query_params.get("check_point_id")
+        if check_point_id_filter:
+            treatments_drug = treatments_drug.filter(
+                check_point_id=check_point_id_filter
+            )
         return treatments_drug
 
 
 class MetricViewSet(viewsets.ModelViewSet):
     serializer_class = MetricSerializer
-
-    def get_queryset(self):
-        metrics = Metric.objects.all()
-        return metrics
-
-
-class MetricViewSet(viewsets.ModelViewSet):
-    serializer_class = MetricSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
         metrics = Metric.objects.all()
@@ -168,22 +177,45 @@ class MetricViewSet(viewsets.ModelViewSet):
 
 class VariantQualitativeViewSet(viewsets.ModelViewSet):
     serializer_class = VariantQualitativeSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
         variants_qualitative = VariantQualitative.objects.all()
+        metric_id_filter = self.request.query_params.get("metric_id")
+        reference_filter = self.request.query_params.get("reference")
+        if metric_id_filter:
+            variants_qualitative = variants_qualitative.filter(
+                metric_id=metric_id_filter
+            )
+        if reference_filter:
+            variants_qualitative = variants_qualitative.filter(
+                reference=reference_filter
+            )
         return variants_qualitative
 
 
 class MetricsTemplatesViewSet(viewsets.ModelViewSet):
     serializer_class = MetricsTemplatesSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
         metrics_templates = MetricsTemplates.objects.all()
+        metric_id_filter = self.request.query_params.get("metric_id")
+        research_template_id_filter = self.request.query_params.get(
+            "research_template_id"
+        )
+        if metric_id_filter:
+            metrics_templates = metrics_templates.filter(metric_id=metric_id_filter)
+        if research_template_id_filter:
+            metrics_templates = metrics_templates.filter(
+                research_template_id=research_template_id_filter
+            )
         return metrics_templates
 
 
 class ResearchTemplateViewSet(viewsets.ModelViewSet):
     serializer_class = ResearchTemplateSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
         research_templates = ResearchTemplate.objects.all()
@@ -192,22 +224,40 @@ class ResearchTemplateViewSet(viewsets.ModelViewSet):
 
 class ResearchViewSet(viewsets.ModelViewSet):
     serializer_class = ResearchSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
+
         researchs = Research.objects.all()
+        check_point_id_filter = self.request.query_params.get("check_point_id")
+        research_template_id_filter = self.request.query_params.get(
+            "research_template_id"
+        )
+        if check_point_id_filter:
+            researchs = researchs.filter(check_point_id=check_point_id_filter)
+        if research_template_id_filter:
+            researchs = researchs.filter(
+                research_template_id=research_template_id_filter
+            )
         return researchs
 
 
 class MetricValueViewSet(viewsets.ModelViewSet):
     serializer_class = MetricValueSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
         metrics_values = MetricValue.objects.all()
+        research_id_filter = self.request.query_params.get("research_id")
+        if research_id_filter:
+            metrics_values = metrics_values.filter(research_id=research_id_filter)
+
         return metrics_values
 
 
 class HospitalViewSet(viewsets.ModelViewSet):
     serializer_class = HospitalSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
         hospitals = Hospital.objects.all()
@@ -216,6 +266,7 @@ class HospitalViewSet(viewsets.ModelViewSet):
 
 class DiseaseViewSet(viewsets.ModelViewSet):
     serializer_class = DiseaseSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
         diseases = Disease.objects.all()
@@ -234,6 +285,7 @@ class DiseaseViewSet(viewsets.ModelViewSet):
 
 class UnitViewSet(viewsets.ModelViewSet):
     serializer_class = UnitlSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
         units = Unit.objects.all()
@@ -242,6 +294,7 @@ class UnitViewSet(viewsets.ModelViewSet):
 
 class PharmacologicalGroupViewSet(viewsets.ModelViewSet):
     serializer_class = PharmacologicalGrouplSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
         pharmacological_groups = PharmacologicalGroup.objects.all()
@@ -250,6 +303,7 @@ class PharmacologicalGroupViewSet(viewsets.ModelViewSet):
 
 class ActiveIngredientViewSet(viewsets.ModelViewSet):
     serializer_class = ActiveIngredientlSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
         active_ingredients = ActiveIngredient.objects.all()
@@ -258,6 +312,7 @@ class ActiveIngredientViewSet(viewsets.ModelViewSet):
 
 class MedicineViewSet(viewsets.ModelViewSet):
     serializer_class = MedicineSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
         medicines = Medicine.objects.all()
@@ -266,6 +321,7 @@ class MedicineViewSet(viewsets.ModelViewSet):
 
 class CatheterTypeViewSet(viewsets.ModelViewSet):
     serializer_class = CatheterTypeSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
         catheter_types = CatheterType.objects.all()
