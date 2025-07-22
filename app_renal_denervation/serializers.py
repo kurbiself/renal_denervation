@@ -27,10 +27,14 @@ class PharmacologicalGrouplSerializer(serializers.ModelSerializer):
 
 
 class ActiveIngredientlSerializer(serializers.ModelSerializer):
+    pharmacological_group_name = serializers.SerializerMethodField()
 
     class Meta:
         model = ActiveIngredient
-        fields = ("id", "name", "pharmacological_group")
+        fields = ("id", "name", "pharmacological_group", "pharmacological_group_name")
+
+    def get_pharmacological_group_name(self, obj):
+        return obj.pharmacological_group.name
 
 
 class MedicineSerializer(serializers.ModelSerializer):
@@ -123,6 +127,7 @@ class TreatmentDrugSerializer(serializers.ModelSerializer):
             "taking_medicine_evening",
             "taking_medicine_night",
         )
+
     def get_medicine_name(self, obj):
         return obj.medicine.international_name
 
@@ -161,12 +166,12 @@ class CheckPointSerializer(serializers.ModelSerializer):
         return obj.type_point.name
 
 
-class PatientDeseaseSerializer(serializers.ModelSerializer):
+class PatientDiseaseSerializer(serializers.ModelSerializer):
     disease_id_fullname = serializers.SerializerMethodField()
     disease_id_shortname = serializers.SerializerMethodField()
 
     class Meta:
-        model = PatientDesease
+        model = PatientDisease
         fields = (
             "id",
             "patient_id",
@@ -187,7 +192,7 @@ class PatientDeseaseSerializer(serializers.ModelSerializer):
 
 class PatientSerializer(serializers.ModelSerializer):
     points = CheckPointSerializer(many=True, read_only=True)
-    patient_diseases = PatientDeseaseSerializer(many=True, read_only=True)
+    patient_diseases = PatientDiseaseSerializer(many=True, read_only=True)
 
     class Meta:
         model = Patient
@@ -253,6 +258,7 @@ class ResearchTemplateSerializer(serializers.ModelSerializer):
 
 class MetricValueSerializer(serializers.ModelSerializer):
     metric_id_data = serializers.SerializerMethodField()
+    value_qualitative_name = serializers.SerializerMethodField()
 
     class Meta:
         model = MetricValue
@@ -261,6 +267,7 @@ class MetricValueSerializer(serializers.ModelSerializer):
             "research_id",
             "metric_id",
             "value_qualitative_id",
+            "value_qualitative_name",
             "value_numerical",
             "value_binary",
             "value_descriptive",
@@ -271,13 +278,15 @@ class MetricValueSerializer(serializers.ModelSerializer):
     def get_metric_id_data(self, obj):
         return MetricSerializer(obj.metric_id).data
 
+    def get_value_qualitative_name(self, obj):
+        return str(obj.value_qualitative_id)
+
 
 class ResearchSerializer(serializers.ModelSerializer):
     research_template_name = serializers.SerializerMethodField()
     check_point_name = serializers.SerializerMethodField()
     metrics_values = MetricValueSerializer(many=True, read_only=True)
 
-    
     class Meta:
         model = Research
         fields = (

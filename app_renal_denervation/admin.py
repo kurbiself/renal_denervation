@@ -4,7 +4,7 @@ from .models import *
 # Register your models here.
 
 admin.site.register(Patient)
-admin.site.register(PatientDesease)
+admin.site.register(PatientDisease)
 admin.site.register(Disease)
 admin.site.register(Hospital)
 admin.site.register(TypeCheckPoint)

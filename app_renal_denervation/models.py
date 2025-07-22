@@ -173,7 +173,7 @@ class Patient(models.Model):
         verbose_name_plural = "Пациенты"
 
 
-class PatientDesease(models.Model):
+class PatientDisease(models.Model):
     patient_id = models.ForeignKey(
         Patient, related_name="patient_diseases", on_delete=models.CASCADE
     )
@@ -491,11 +491,11 @@ class MetricValue(models.Model):
         verbose_name="Исследование",
     )
     metric_id = models.ForeignKey(Metric, on_delete=models.CASCADE)
-    value_qualitative_id = models.ManyToManyField(
+    value_qualitative_id = models.ForeignKey(
         VariantQualitative,
         verbose_name="Значение качественногоо признака",
-        blank=True,
-        null=True,
+        on_delete=models.CASCADE,
+        blank=True, null=True
     )  # Определили связь многие ко многим
     value_numerical = models.IntegerField(
         verbose_name="Значение количественного признака", blank=True, null=True
