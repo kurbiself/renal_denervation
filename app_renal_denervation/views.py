@@ -46,9 +46,9 @@ from .serializers import (
 from rest_framework import generics, viewsets, permissions
 from rest_framework.parsers import JSONParser
 from django.http import HttpResponse
+from rest_framework.response import Response
 from rest_framework.decorators import action
 import csv
-import codecs
 
 
 class PatientsViewSet(viewsets.ModelViewSet):
@@ -71,10 +71,10 @@ class PatientsViewSet(viewsets.ModelViewSet):
 
         return patients
 
-    @action(detail=False, methods=["get"]) #Для кастомизации
+    @action(detail=False, methods=["get"])  # Для кастомизации
     def export_csv(self, request):
         patients = self.get_queryset()
-        response = HttpResponse(content_type="text/csv; charset=utf-8-sig") #utf 8
+        response = HttpResponse(content_type="text/csv; charset=utf-8-sig")  # utf 8
         response["Content-Disposition"] = 'attachment; filename="patients.csv"'
 
         writer = csv.writer(response)
@@ -88,10 +88,28 @@ class PatientsViewSet(viewsets.ModelViewSet):
                     patient.gender,
                     patient.birth.strftime("%Y-%m-%d") if patient.birth else "",
                 ]
-                
             )
 
         return response
+
+
+class MedicinesStatisticsViewSet(viewsets.ViewSet):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        return TreatmentDrug.objects.prefetch_related("check_point_id")
+
+    def list(self, request, *args, **kwargs):
+        treatments_drug = self.get_queryset()
+        result = {}
+        for treatment in treatments_drug:
+            if treatment.check_point_id.date_of_receipt is not None:
+                medicine = treatment.medicine.international_name
+                if medicine not in result:
+                    result[medicine] = []
+                result[medicine].append(treatment.check_point_id.date_of_receipt)
+
+        return Response(result)
 
 
 class PatientDiseaseViewSet(viewsets.ModelViewSet):
@@ -100,14 +118,14 @@ class PatientDiseaseViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         patient_disease = PatientDisease.objects.all()
-        # patient_filter = self.request.query_params.get("patient_id")
-        # disease_filter = self.request.query_params.get("disease_name")
-        # if patient_filter:
-        #     patient_desease = patient_desease.filter(patient_id=patient_filter)
-        # if disease_filter:
-        #     patient_desease = patient_desease.filter(
-        #         disease_id__fullname__istartswith=disease_filter
-        #     )
+        patient_filter = self.request.query_params.get("patient_id")
+        disease_filter = self.request.query_params.get("disease_name")
+        if patient_filter:
+            patient_disease = patient_disease.filter(patient_id=patient_filter)
+        if disease_filter:
+            patient_disease = patient_disease.filter(
+                disease_id__fullname__istartswith=disease_filter
+            )
         return patient_disease
 
 

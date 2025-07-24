@@ -2,7 +2,7 @@ from django.urls import path, include
 from . import views
 from .views import (
     PatientsViewSet,
-    PatientDeseaseViewSet,
+    PatientDiseaseViewSet,
     TypeCheckPointViewSet,
     CheckPointViewSet,
     SurgicalOperationViewSet,
@@ -20,7 +20,8 @@ from .views import (
     PharmacologicalGroupViewSet,
     ActiveIngredientViewSet,
     MedicineViewSet,
-    CatheterTypeViewSet
+    CatheterTypeViewSet,
+    MedicinesStatisticsViewSet
 )
 from rest_framework.routers import SimpleRouter
 
@@ -54,7 +55,7 @@ router.register(
     prefix="metrics-values", viewset=MetricValueViewSet, basename="metricsvalues"
 )
 router.register(
-    prefix="patient-diseases", viewset=PatientDeseaseViewSet, basename="patientdiseases"
+    prefix="patient-diseases", viewset=PatientDiseaseViewSet, basename="patientdiseases"
 )
 router.register(
     prefix="type-checkpoints", viewset=TypeCheckPointViewSet, basename="typecheckpoints"
@@ -82,6 +83,9 @@ router.register(
 )
 router.register(
     prefix="catheter-types", viewset=CatheterTypeViewSet, basename="cathetertypes"
+)
+router.register(
+    prefix="medicines-statistics", viewset=MedicinesStatisticsViewSet, basename="medicinesstatistics"
 )
 
 urlpatterns = [
