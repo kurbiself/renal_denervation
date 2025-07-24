@@ -22,7 +22,7 @@
 - Database: PostgreSQL
 - Аутентификация: JWT + Custom User Model
 
-## <a id="title1_3">Установка и запуск</a>
+## <a id="title13">Установка и запуск</a>
 
 ### 1. Клонирование репозитория
 
