@@ -5,7 +5,6 @@
 - [Описание проекта](#title1)
 - [Технологии](#title2)
 - [Установка и запуск](#title3)
-- [Разработка](#title1_4)
 
 ## <a id="title1">Описание проекта</a>
 
@@ -34,18 +33,14 @@ cd renal-denervation
 
 ### 2. Установка зависимостей
 
+1. Создайте виртуальное окружение
+2. Установите зависимости:
+
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Запуск сервера
-
-```bash
-python manage.py migrate
-python manage.py runserverf
-```
-
-### 4. Настройка БД
+### 3. Настройка БД
 
 1. Установите PostgreSQL 16
 2. Создайте базу данных:
@@ -69,4 +64,11 @@ DATABASES = {
         'PORT': os.getenv('DB_PORT'),
     }
 }
+```
+
+### 4. Запуск сервера
+
+```bash
+python manage.py migrate
+python manage.py runserver
 ```
