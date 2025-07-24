@@ -1,6 +1,9 @@
 from pathlib import Path
 import _locale
 from datetime import timedelta
+from dotenv import load_dotenv
+load_dotenv()
+import os
 
 _locale._getdefaultlocale = lambda *args: ["ru_RU", "utf8"]
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -11,7 +14,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-7wj))-h@j2!v!s(cz0viwg^g@%2xnd#9fsk!h4_vz047mzukq4"
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -106,9 +109,9 @@ AUTH_USER_MODEL = "users.CardioUser"  # нужно импортировать?
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": "renaldenervation",
-        "USER": "cardio_user",
-        "PASSWORD": "12345678",
+        "NAME": os.getenv('DB_NAME'),
+        "USER": os.getenv('DB_USER'),
+        "PASSWORD": os.getenv('DB_PASSWORD'),
         "HOST": "localhost",
         "PORT": "5432",
     }
